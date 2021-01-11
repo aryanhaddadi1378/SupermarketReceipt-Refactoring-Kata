@@ -122,6 +122,7 @@ public class ShoppingCart {
         }
 
         BundledDiscount bundledDiscount = handleBundledOffers(bundledOffers);
-        receipt.addBundledDiscount(bundledDiscount);
+        if (bundledDiscount != null)
+            receipt.addBundledDiscount(bundledDiscount);
     }
 }
