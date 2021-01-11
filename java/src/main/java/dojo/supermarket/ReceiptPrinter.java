@@ -23,10 +23,13 @@ public class ReceiptPrinter {
             result.append(receiptItem);
         }
         for (SingleDiscount singleDiscount : receipt.getSingleDiscounts()) {
-            String discountPresentation = presentDiscount(singleDiscount);
+            String discountPresentation = presentSingleDiscount(singleDiscount);
             result.append(discountPresentation);
         }
-
+        for (BundledDiscount bundledDiscount : receipt.getBundledDiscounts()) {
+            String discountPresentation = presentBundledDiscount(bundledDiscount);
+            result.append(discountPresentation);
+        }
         result.append("\n");
         result.append(presentTotal(receipt));
         return result.toString();
@@ -44,7 +47,18 @@ public class ReceiptPrinter {
         return line;
     }
 
-    private String presentDiscount(SingleDiscount singleDiscount) {
+    private String presentBundledDiscount(BundledDiscount bundledDiscount) {
+        String name = bundledDiscount.getDescription() + "(";
+        for (Product product : bundledDiscount.getProducts()) {
+            name += product.getName() + ",";
+        }
+        name += ")";
+        String value = presentPrice(bundledDiscount.getDiscountAmount());
+
+        return formatLineWithWhitespace(name, value);
+    }
+
+    private String presentSingleDiscount(SingleDiscount singleDiscount) {
         String name = singleDiscount.getDescription() + "(" + singleDiscount.getProduct().getName() + ")";
         String value = presentPrice(singleDiscount.getDiscountAmount());
 

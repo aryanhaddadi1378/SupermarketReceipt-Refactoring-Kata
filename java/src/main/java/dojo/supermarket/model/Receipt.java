@@ -8,6 +8,10 @@ public class Receipt {
     private final List<SingleDiscount> singleDiscounts = new ArrayList<>();
     private final List<BundledDiscount> bundledDiscounts = new ArrayList<>();
 
+    public List<BundledDiscount> getBundledDiscounts() {
+        return bundledDiscounts;
+    }
+
 
     public Double getTotalPrice() {
         double total = 0.0;
