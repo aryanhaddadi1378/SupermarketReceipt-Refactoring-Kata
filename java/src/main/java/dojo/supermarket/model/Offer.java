@@ -3,11 +3,11 @@ package dojo.supermarket.model;
 public class Offer {
     private final SpecialOfferType offerType;
     private final Product product;
-    private final double argument;
+    private final double unitPrice;
 
-    public Offer(SpecialOfferType offerType, Product product, double argument) {
+    public Offer(SpecialOfferType offerType, Product product, double unitPrice) {
         this.offerType = offerType;
-        this.argument = argument;
+        this.unitPrice = unitPrice;
         this.product = product;
     }
 
@@ -19,8 +19,8 @@ public class Offer {
         return this.offerType;
     }
 
-    public double getArgument() {
-        return this.argument;
+    public double getUnitPrice() {
+        return this.unitPrice;
     }
 
 }

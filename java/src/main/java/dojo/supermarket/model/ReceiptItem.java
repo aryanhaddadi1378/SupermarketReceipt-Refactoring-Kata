@@ -5,7 +5,6 @@ import java.util.Objects;
 public class ReceiptItem {
     private final Product product;
     private final double unitPrice;
-//    private final double totalPrice;
     private final double quantity;
 
     public ReceiptItem(Product p, double quantity, double unitPrice) {
