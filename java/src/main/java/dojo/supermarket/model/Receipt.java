@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Receipt {
-    private List<ReceiptItem> items = new ArrayList<>();
-    private List<Discount> discounts = new ArrayList<>();
+    private final List<ReceiptItem> items = new ArrayList<>();
+    private final List<Discount> discounts = new ArrayList<>();
 
     public Double getTotalPrice() {
         double total = 0.0;
@@ -18,8 +18,10 @@ public class Receipt {
         return total;
     }
 
-    public void addProduct(Product p, double quantity, double price, double totalPrice) {
-        this.items.add(new ReceiptItem(p, quantity, price, totalPrice));
+    public void addProduct(ProductQuantity productQuantity, double unitPrice) {
+        double quantity = productQuantity.getQuantity();
+        Product product = productQuantity.getProduct();
+        this.items.add(new ReceiptItem(product, quantity, unitPrice));
     }
 
     public List<ReceiptItem> getItems() {

@@ -39,7 +39,7 @@ public class ReceiptPrinter {
         String line = formatLineWithWhitespace(name, totalPricePresentation);
 
         if (item.getQuantity() != 1) {
-            line += "  " + presentPrice(item.getPrice()) + " * " + presentQuantity(item) + "\n";
+            line += "  " + presentPrice(item.getUnitPrice()) + " * " + presentQuantity(item) + "\n";
         }
         return line;
     }
