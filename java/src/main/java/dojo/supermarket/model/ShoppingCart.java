@@ -8,7 +8,7 @@ import java.util.Map;
 public class ShoppingCart {
 
     private final List<ProductQuantity> items = new ArrayList<>();
-    Map<Product, Double> productQuantities = new HashMap<>();
+    private final Map<Product, Double> productQuantities = new HashMap<>();
 
 
     List<ProductQuantity> getItems() {
@@ -33,12 +33,12 @@ public class ShoppingCart {
         }
     }
 
-    private Discount getDiscountThreeForTwo(Product product, double quantity, Offer offer, double unitPrice) {
+    private Discount getDiscountThreeForTwo(Product product, double quantity, double unitPrice) {
         int quantityAsInt = (int)quantity;
-        int x = 3;
-        int numberOfXs = quantityAsInt / x;
+        int bundleSize = 3;
+        int numOfBundles = quantityAsInt / bundleSize;
         if (quantityAsInt > 2) {
-            double discountAmount = quantity * unitPrice - ((numberOfXs * 2 * unitPrice) + quantityAsInt % 3 * unitPrice);
+            double discountAmount = quantity * unitPrice - ((numOfBundles * 2 * unitPrice) + quantityAsInt % 3 * unitPrice);
             return new Discount(product, "3 for 2", -discountAmount);
         }
         return null;
@@ -47,9 +47,9 @@ public class ShoppingCart {
 
     private Discount getDiscountTwoForAmount(Product product, double quantity, Offer offer, double unitPrice) {
         int quantityAsInt = (int)quantity;
-        int x = 2;
+        int bundleSize = 2;
         if (quantityAsInt >= 2) {
-            int intDivision = quantityAsInt / x;
+            int intDivision = quantityAsInt / bundleSize;
             double pricePerUnit = offer.getUnitPrice() * intDivision;
             double theTotal = (quantityAsInt % 2) * unitPrice;
             double total = pricePerUnit + theTotal;
@@ -61,11 +61,11 @@ public class ShoppingCart {
 
     private Discount getDiscountFiveForAmount(Product product, double quantity, Offer offer, double unitPrice) {
         int quantityAsInt = (int)quantity;
-        int x = 5;
-        int numberOfXs = quantityAsInt / x;
+        int bundleSize = 5;
+        int numOfBundles = quantityAsInt / bundleSize;
         if (quantityAsInt >= 5) {
-            double discountTotal = unitPrice * quantity - (offer.getUnitPrice() * numberOfXs + quantityAsInt % 5 * unitPrice);
-            return new Discount(product, x + " for " + offer.getUnitPrice(), -discountTotal);
+            double discountTotal = unitPrice * quantity - (offer.getUnitPrice() * numOfBundles + quantityAsInt % 5 * unitPrice);
+            return new Discount(product, bundleSize + " for " + offer.getUnitPrice(), -discountTotal);
         }
         return null;
     }
@@ -74,28 +74,21 @@ public class ShoppingCart {
         return new Discount(product, offer.getUnitPrice() + "% off", -quantity * unitPrice * offer.getUnitPrice() / 100.0);
     }
 
-    private Discount handleOffer(Map<Product, Offer> offers, SupermarketCatalog catalog, Product product) {
-        Offer offer = offers.get(product);
+    private Discount handleOffer(Offer offer, SupermarketCatalog catalog, Product product) {
         double quantity = productQuantities.get(product);
         double unitPrice = catalog.getUnitPrice(product);
-        Discount discount = null;
         switch (offer.getOfferType()) {
             case ThreeForTwo:
-                discount = getDiscountThreeForTwo(product, quantity, offer, unitPrice);
-                break;
+                return getDiscountThreeForTwo(product, quantity, unitPrice);
             case TwoForAmount:
-                discount = getDiscountTwoForAmount(product, quantity, offer, unitPrice);
-                break;
+                return getDiscountTwoForAmount(product, quantity, offer, unitPrice);
             case FiveForAmount:
-                discount = getDiscountFiveForAmount(product, quantity, offer, unitPrice);
-                break;
+                return getDiscountFiveForAmount(product, quantity, offer, unitPrice);
             case TenPercentDiscount:
-                discount = getDiscountTenPercentDiscount(product, quantity, offer, unitPrice);
-                break;
+                return getDiscountTenPercentDiscount(product, quantity, offer, unitPrice);
             default:
-                break;
+                return null;
         }
-        return discount;
     }
 
     void handleOffers(Receipt receipt, Map<Product, Offer> offers, SupermarketCatalog catalog) {
@@ -103,7 +96,7 @@ public class ShoppingCart {
             if (!offers.containsKey(product))
                 continue;
 
-            Discount discount = handleOffer(offers, catalog, product);
+            Discount discount = handleOffer(offers.get(product), catalog, product);
 
             if (discount != null)
                 receipt.addDiscount(discount);
