@@ -50,11 +50,11 @@ public class ShoppingCart {
         int bundleSize = 2;
         if (quantityAsInt >= 2) {
             int intDivision = quantityAsInt / bundleSize;
-            double pricePerUnit = offer.getUnitPrice() * intDivision;
+            double pricePerUnit = offer.getArgument() * intDivision;
             double theTotal = (quantityAsInt % 2) * unitPrice;
             double total = pricePerUnit + theTotal;
             double discountN = unitPrice * quantity - total;
-            return new Discount(product, "2 for " + offer.getUnitPrice(), -discountN);
+            return new Discount(product, "2 for " + offer.getArgument(), -discountN);
         }
         return null;
     }
@@ -64,14 +64,14 @@ public class ShoppingCart {
         int bundleSize = 5;
         int numOfBundles = quantityAsInt / bundleSize;
         if (quantityAsInt >= 5) {
-            double discountTotal = unitPrice * quantity - (offer.getUnitPrice() * numOfBundles + quantityAsInt % 5 * unitPrice);
-            return new Discount(product, bundleSize + " for " + offer.getUnitPrice(), -discountTotal);
+            double discountTotal = unitPrice * quantity - (offer.getArgument() * numOfBundles + quantityAsInt % 5 * unitPrice);
+            return new Discount(product, bundleSize + " for " + offer.getArgument(), -discountTotal);
         }
         return null;
     }
 
     private Discount getDiscountTenPercentDiscount(Product product, double quantity, Offer offer, double unitPrice) {
-        return new Discount(product, offer.getUnitPrice() + "% off", -quantity * unitPrice * offer.getUnitPrice() / 100.0);
+        return new Discount(product, offer.getArgument() + "% off", -quantity * unitPrice * offer.getArgument() / 100.0);
     }
 
     private Discount handleOffer(Offer offer, SupermarketCatalog catalog, Product product) {
