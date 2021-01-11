@@ -33,73 +33,95 @@ public class ShoppingCart {
         }
     }
 
-    private Discount getDiscountThreeForTwo(Product product, double quantity, double unitPrice) {
+    private SingleDiscount getDiscountThreeForTwo(Product product, double quantity, double unitPrice) {
         int quantityAsInt = (int)quantity;
         int bundleSize = 3;
         int numOfBundles = quantityAsInt / bundleSize;
         if (quantityAsInt > 2) {
             double discountAmount = quantity * unitPrice - ((numOfBundles * 2 * unitPrice) + quantityAsInt % 3 * unitPrice);
-            return new Discount(product, "3 for 2", -discountAmount);
+            return new SingleDiscount(product, "3 for 2", -discountAmount);
         }
         return null;
     }
 
 
-    private Discount getDiscountTwoForAmount(Product product, double quantity, Offer offer, double unitPrice) {
+    private SingleDiscount getDiscountTwoForAmount(Product product, double quantity, SingleOffer singleOffer, double unitPrice) {
         int quantityAsInt = (int)quantity;
         int bundleSize = 2;
         if (quantityAsInt >= 2) {
             int intDivision = quantityAsInt / bundleSize;
-            double pricePerUnit = offer.getUnitPrice() * intDivision;
+            double pricePerUnit = singleOffer.getArgument() * intDivision;
             double theTotal = (quantityAsInt % 2) * unitPrice;
             double total = pricePerUnit + theTotal;
             double discountN = unitPrice * quantity - total;
-            return new Discount(product, "2 for " + offer.getUnitPrice(), -discountN);
+            return new SingleDiscount(product, "2 for " + singleOffer.getArgument(), -discountN);
         }
         return null;
     }
 
-    private Discount getDiscountFiveForAmount(Product product, double quantity, Offer offer, double unitPrice) {
+    private SingleDiscount getDiscountFiveForAmount(Product product, double quantity, SingleOffer singleOffer, double unitPrice) {
         int quantityAsInt = (int)quantity;
         int bundleSize = 5;
         int numOfBundles = quantityAsInt / bundleSize;
         if (quantityAsInt >= 5) {
-            double discountTotal = unitPrice * quantity - (offer.getUnitPrice() * numOfBundles + quantityAsInt % 5 * unitPrice);
-            return new Discount(product, bundleSize + " for " + offer.getUnitPrice(), -discountTotal);
+            double discountTotal = unitPrice * quantity - (singleOffer.getArgument() * numOfBundles + quantityAsInt % 5 * unitPrice);
+            return new SingleDiscount(product, bundleSize + " for " + singleOffer.getArgument(), -discountTotal);
         }
         return null;
     }
 
-    private Discount getDiscountTenPercentDiscount(Product product, double quantity, Offer offer, double unitPrice) {
-        return new Discount(product, offer.getUnitPrice() + "% off", -quantity * unitPrice * offer.getUnitPrice() / 100.0);
+    private SingleDiscount getDiscountTenPercentDiscount(Product product, double quantity, SingleOffer singleOffer, double unitPrice) {
+        return new SingleDiscount(product, singleOffer.getArgument() + "% off", -quantity * unitPrice * singleOffer.getArgument() / 100.0);
     }
 
-    private Discount handleOffer(Offer offer, SupermarketCatalog catalog, Product product) {
+    private SingleDiscount handleSingleOffer(SingleOffer singleOffer, SupermarketCatalog catalog, Product product) {
         double quantity = productQuantities.get(product);
         double unitPrice = catalog.getUnitPrice(product);
-        switch (offer.getOfferType()) {
+        switch (singleOffer.getOfferType()) {
             case ThreeForTwo:
                 return getDiscountThreeForTwo(product, quantity, unitPrice);
             case TwoForAmount:
-                return getDiscountTwoForAmount(product, quantity, offer, unitPrice);
+                return getDiscountTwoForAmount(product, quantity, singleOffer, unitPrice);
             case FiveForAmount:
-                return getDiscountFiveForAmount(product, quantity, offer, unitPrice);
+                return getDiscountFiveForAmount(product, quantity, singleOffer, unitPrice);
             case TenPercentDiscount:
-                return getDiscountTenPercentDiscount(product, quantity, offer, unitPrice);
+                return getDiscountTenPercentDiscount(product, quantity, singleOffer, unitPrice);
             default:
                 return null;
         }
     }
 
-    void handleOffers(Receipt receipt, Map<Product, Offer> offers, SupermarketCatalog catalog) {
+    private BundledDiscount handleBundledOffers(Map<List<Product>, BundledOffer> bundledOffers) {
+        for (List<Product> bundledOfferProducts : bundledOffers.keySet()) {
+            boolean contains = true;
+            for(Product product : bundledOfferProducts) {
+                if (!productQuantities.containsKey(product)) {
+                    contains = false;
+                    break;
+                }
+            }
+            if (!contains)
+                continue;
+            return new BundledDiscount(bundledOfferProducts, "Discounted Bundle",
+                                        -bundledOffers.get(bundledOfferProducts).getTotalPrice() * 0.1);
+        }
+        return null;
+    }
+
+    public void handleOffers(Receipt receipt, Map<Product, SingleOffer> offers,
+                      Map<List<Product>, BundledOffer> bundledOffers, SupermarketCatalog catalog) {
+
         for (Product product: productQuantities.keySet()) {
             if (!offers.containsKey(product))
                 continue;
 
-            Discount discount = handleOffer(offers.get(product), catalog, product);
+            SingleDiscount singleDiscount = handleSingleOffer(offers.get(product), catalog, product);
 
-            if (discount != null)
-                receipt.addDiscount(discount);
+            if (singleDiscount != null)
+                receipt.addSingleDiscount(singleDiscount);
         }
+
+        BundledDiscount bundledDiscount = handleBundledOffers(bundledOffers);
+        receipt.addBundledDiscount(bundledDiscount);
     }
 }

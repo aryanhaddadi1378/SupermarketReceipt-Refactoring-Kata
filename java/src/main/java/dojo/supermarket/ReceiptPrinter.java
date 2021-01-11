@@ -22,8 +22,8 @@ public class ReceiptPrinter {
             String receiptItem = presentReceiptItem(item);
             result.append(receiptItem);
         }
-        for (Discount discount : receipt.getDiscounts()) {
-            String discountPresentation = presentDiscount(discount);
+        for (SingleDiscount singleDiscount : receipt.getSingleDiscounts()) {
+            String discountPresentation = presentDiscount(singleDiscount);
             result.append(discountPresentation);
         }
 
@@ -44,9 +44,9 @@ public class ReceiptPrinter {
         return line;
     }
 
-    private String presentDiscount(Discount discount) {
-        String name = discount.getDescription() + "(" + discount.getProduct().getName() + ")";
-        String value = presentPrice(discount.getDiscountAmount());
+    private String presentDiscount(SingleDiscount singleDiscount) {
+        String name = singleDiscount.getDescription() + "(" + singleDiscount.getProduct().getName() + ")";
+        String value = presentPrice(singleDiscount.getDiscountAmount());
 
         return formatLineWithWhitespace(name, value);
     }
