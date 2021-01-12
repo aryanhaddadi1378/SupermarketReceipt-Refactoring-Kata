@@ -91,7 +91,7 @@ public class ShoppingCart {
         }
     }
 
-    private BundledDiscount handleBundledOffers(Map<List<Product>, BundledOffer> bundledOffers) {
+    private void handleBundledOffers(Receipt receipt, Map<List<Product>, BundledOffer> bundledOffers) {
         for (List<Product> bundledOfferProducts : bundledOffers.keySet()) {
             boolean contains = true;
             for(Product product : bundledOfferProducts) {
@@ -102,10 +102,10 @@ public class ShoppingCart {
             }
             if (!contains)
                 continue;
-            return new BundledDiscount(bundledOfferProducts, "Discounted Bundle",
+            BundledDiscount bundledDiscount =  new BundledDiscount(bundledOfferProducts, "Discounted Bundle",
                                         -bundledOffers.get(bundledOfferProducts).getTotalPrice() * 0.1);
+            receipt.addBundledDiscount(bundledDiscount);
         }
-        return null;
     }
 
     public void handleOffers(Receipt receipt, Map<Product, SingleOffer> offers,
@@ -121,8 +121,6 @@ public class ShoppingCart {
                 receipt.addSingleDiscount(singleDiscount);
         }
 
-        BundledDiscount bundledDiscount = handleBundledOffers(bundledOffers);
-        if (bundledDiscount != null)
-            receipt.addBundledDiscount(bundledDiscount);
+        handleBundledOffers(receipt, bundledOffers);
     }
 }
